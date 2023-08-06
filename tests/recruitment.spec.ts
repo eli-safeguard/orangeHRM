@@ -1,64 +1,59 @@
 import { test, expect } from '@playwright/test';
+import { BasePage } from 'e2e/methods/base-page';
+
+let basePage: BasePage;
 
 test.beforeEach(async ({ page }) => {
+	basePage = new BasePage(page);
 	await page.goto('https://opensource-demo.orangehrmlive.com/');
 });
 
 
-// test('not logged in', async ({ page }) => {
-//   console.log('current page: ' + page.url());
-//   // Expect url not to contain "dashboard"
-//   await expect(page).not.toHaveURL(/dashboard/);
-// });
-
-// test('login', async ({ page }) => {
-// 	await login({ page });
-// });
-
-// test('navigate to recruitment page', async ({ page }) => {
-// 	await login({ page });
-// 	await getToRecruitment({ page });
-// });
-
-// NEED: CRUD tests
-
-// test('validate candidate on recruitment page', async ({ page }) => {
-// 	await login({ page });
-// 	await getToRecruitment({ page });
-// 	await verifyCandidateAppears({ page }, 'mohan k');
-// });
-
-test('create candidate on recruitment page', async ({ page }) => {
-	await login({ page });
-	await getToRecruitment({ page });
-	await addCandidate({ page }, 'test', 'person', 'b@c.com');
-	await getToRecruitment({ page });
-	await verifyCandidateAppears({ page }, 'test person');
+test('not logged in', async ({ page }) => {
+  console.log('current page: ' + page.url());
+  // Expect url not to contain "dashboard"
+  await expect(page).not.toHaveURL(/dashboard/);
 });
 
+test('login', async ({ page }) => {
+	await basePage.login();
+});
 
+test('navigate to recruitment page', async ({ page }) => {
+	await basePage.login();
+	await basePage.getToRecruitment();
+});
 
-async function login({ page }) {
-	await page.getByPlaceholder('Username').fill('Admin');
-	await page.getByPlaceholder('Password').fill('admin123');
-	await page.keyboard.press('Enter');
-	await expect(page).toHaveURL(/dashboard/);
-}
+// READ
+test('validate candidate on recruitment page', async () => {
+	await basePage.login();
+	await basePage.getToRecruitment();
+	await basePage.verifyCandidateAppears('Chris Harris');
+});
 
-async function getToRecruitment({ page }) {
-	await page.getByRole('link', { name: /Recruitment/ }).click();
-	await expect(page).toHaveURL(/recruitment\/viewCandidates/);
-}
+// CREATE
+test('create candidate on recruitment page', async () => {
+	await basePage.login();
+	await basePage.getToRecruitment();
+	await basePage.addCandidate('test3', 'person3', 'b3@c3.com');
+	await basePage.getToRecruitment();
+	await basePage.verifyCandidateAppears('test3 person3');
+});
 
-async function verifyCandidateAppears({ page }, candidate: string) {
-	await expect(page.getByRole('cell', { name: candidate })).toBeVisible();
-}
+// UPDATE
+test('update candidate on recruitment page', async ({ page }) => {
+	await page.waitForTimeout(5000);
+	await basePage.login();
+	await basePage.getToRecruitment();
+	await basePage.updateCandidate('test3', 'person3', 'test2', 'person2');
+	await basePage.getToRecruitment();
+	await basePage.verifyCandidateAppears('test2 person2');
+});
 
-async function addCandidate({ page }, firstName: string, lastName: string, email: string) {
-	await page.getByRole('button', { name: 'Add' }).click();
-	await page.getByPlaceholder('First Name').fill(firstName);
-	await page.getByPlaceholder('Last Name').fill(lastName);
-	await page.getByPlaceholder('Type here').first().fill(email);
-	await page.getByRole('button', { name: 'Save' }).click();
-	await expect (page.getByText(firstName + ' ' + lastName, { exact: true })).toBeVisible();
-}
+// DELETE
+test('delete candidate on recruitment page', async ({ page }) => {
+	await basePage.login();
+	await basePage.getToRecruitment();
+	await basePage.deleteCandidate('test3', 'person3');
+	await basePage.verifyCandidateAppears('test3 person3', false);
+});
