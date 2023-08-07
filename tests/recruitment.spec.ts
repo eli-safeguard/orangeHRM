@@ -10,18 +10,18 @@ test.beforeEach(async ({ page }) => {
 });
 
 
-// READ
-test('validate candidate on recruitment page', async () => {
-	await basePage.getToRecruitment();
-	await basePage.verifyCandidateAppears('Chris Harris');
-});
-
 // CREATE
 test('create candidate on recruitment page', async () => {
 	await basePage.getToRecruitment();
 	await basePage.addCandidate('test', 'person', 'a@b.com');
 	await basePage.getToRecruitment();
 	await basePage.verifyCandidateAppears('test person');
+});
+
+// READ
+test('validate candidate on recruitment page', async () => {
+	await basePage.getToRecruitment();
+	await basePage.verifyCandidateAppears('Chris Harris');
 });
 
 // UPDATE

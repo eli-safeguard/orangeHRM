@@ -1,5 +1,4 @@
 import { expect, Page } from "@playwright/test";
-import { CustomWorld } from "../../support/world";
 
 export class BasePage {
     readonly page: Page;
